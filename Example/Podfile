@@ -1,4 +1,4 @@
-source 'https://github.com/CocoaPods/Specs.git'
+source 'https://gitlab.rambler.ru/cocoapods/cocoapods.git'
 use_frameworks!
 
 target 'SwiftInjections_Example', :exclusive => true do
