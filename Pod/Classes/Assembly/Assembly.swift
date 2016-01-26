@@ -52,6 +52,8 @@ public class Assembly: AssemblyProtocol {
     
     public func instantiateObject<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
         
+        print("Using definition: \(unsafeAddressOf(definition)) for Object: \(ObjectType.self)")
+        
         switch definition.scope {
         case .ObjectGraph:
             return self.objectWithObjectGraphScope(fromDefinition: definition)

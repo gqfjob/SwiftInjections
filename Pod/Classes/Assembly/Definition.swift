@@ -50,11 +50,13 @@ public class Definition<ObjectType>: AnyObjectDefinition {
 public func == (left:AnyObjectDefinition, right:AnyObjectDefinition) -> Bool {
     return left.uuid == right.uuid
 }
-/*
-public func definition<ObjectType>(withScope scope:Scope, objectInitBlock: ()->ObjectType, objectInjectBlock: (object:ObjectType)->ObjectType)->Definition<ObjectType> {
+
+public struct ObjectModel<ObjectType> {
+    typealias ObjectModelBlock = ()->ObjectType
     
-    return Definition<ObjectType>(withScope: scope,
-        objectInitBlock: objectInitBlock,
-        objectInjectBlock: objectInjectBlock)
+    var objectModelBlock:ObjectModelBlock
+    
+    init(objectModelBlock:ObjectModelBlock) {
+        self.objectModelBlock = objectModelBlock
+    }
 }
-*/
