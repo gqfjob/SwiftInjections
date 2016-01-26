@@ -10,6 +10,6 @@ import Foundation
 
 class InjectionStack {
     
-    var objectGraphScopes:[ObjectScope:Any] = [ObjectScope:Any]()
+    var objectGraphScopeDefinitions:[AnyObjectDefinition:Any] = [AnyObjectDefinition:Any]()
     
 }

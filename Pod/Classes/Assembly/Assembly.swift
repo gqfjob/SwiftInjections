@@ -10,9 +10,12 @@ import Foundation
 import SwiftRuntime
 import SwiftDispatch
 
-public class Assembly: AssemblyProtocol, AssemblyInternalProtocol {
+public class Assembly: AssemblyProtocol {
     
     public required init() {}
+    
+    public var singletons:[AnyObjectDefinition:Any] = [:]
+    public var weakSingletons:[AnyObjectDefinition:WeakReferenceStorage] = [:]
     
     public class func instance() -> Self {
         return self.resolvedInstance()!
@@ -36,80 +39,107 @@ public class Assembly: AssemblyProtocol, AssemblyInternalProtocol {
         return StaticDataHolder.assemblyResolver?.resolveDependency() {
             let object = self.init()
             let assembly = object as Assembly
-            assembly.detectViewControllersForAutoinjection()
             return assembly
         }
     }
     
-    public func inject<ObjectType>(intoObject object: ObjectType, injectionBlock: (ObjectType) -> ObjectType) -> ObjectType {
-        return self.instantiate(withInitBlock: { return object}, injectionBlock: injectionBlock)
-    }
-    
     public func object<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
         
-        let object = definition.objectInitBlock()
-        let injectedObject = definition.objectInjectBlock(object: object)
-        return injectedObject
+        switch definition.scope {
+        case .ObjectGraph:
+            return self.objectWithObjectGraphScope(fromDefinition: definition)
+        case .Prototype:
+            return self.objectWithPrototypeScope(fromDefinition: definition)
+        case .Singleton:
+            return self.objectWithSingletonScope(fromDefinition: definition)
+        case .LazySingleton:
+            return self.objectWithLazySingletonScope(fromDefinition: definition)
+        case .WeakSingleton:
+            if let _ = ObjectType.self as? AnyObject.Type {
+                return self.objectWithLazySingletonScope(fromDefinition: definition)
+            }
+            else {
+                return self.objectWithPrototypeScope(fromDefinition: definition)
+            }
+        }
     }
     
-    public func instantiate<ObjectType>(withScope scope:ObjectScope, injectionBlock:(ObjectType)->ObjectType) -> ObjectType {
+    private func objectWithObjectGraphScope<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
         
-        var injectionStack:InjectionStack? = NSThread.currentThread().getObject(forKey: "InjectionStack")
+        var injectionStack:InjectionStack! = NSThread.currentThread().getObject(forKey: "InjectionStack")
         if injectionStack == nil {
             injectionStack = InjectionStack()
             NSThread.currentThread().setObject(injectionStack, withKey: "InjectionStack", refenceType: .Strong)
         }
         
-        let object:ObjectType
-        
-        if let createdObject = injectionStack?.objectGraphScopes[scope] {
-            object = createdObject as! ObjectType
-        } else {
-            object = scope.initBlock() as! ObjectType
-            injectionStack?.objectGraphScopes[scope] = object
+        var object:ObjectType! = injectionStack.objectGraphScopeDefinitions[definition] as? ObjectType
+        if object == nil {
+            object = definition.objectInitBlock()
+            injectionStack.objectGraphScopeDefinitions[definition] = object
+            object = definition.objectInjectBlock(object: object)
         }
         
-        let injectedObject:ObjectType = injectionBlock(object)
-        
-        return injectedObject
+        return object
     }
     
-    public func instantiate<ObjectType>(withInitBlock initBlock:()->ObjectType, injectionBlock:(ObjectType)->ObjectType) -> ObjectType {
+    private func objectWithPrototypeScope<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
+        return definition.objectInjectBlock( object: definition.objectInitBlock() )
+    }
+    
+    private func objectWithSingletonScope<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
         
-//        let address:Int64 = unsafeBitCast(initBlock.self, Int64.self)
-        print("block: \(String(initBlock))")
+        return self.singletons[definition] as! ObjectType
+    }
+    
+    private func objectWithLazySingletonScope<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
         
-        
-        
-        var injectionStack:InjectionStack? = NSThread.currentThread().getObject(forKey: "InjectionStack")
-        if injectionStack == nil {
-           injectionStack = InjectionStack()
-            NSThread.currentThread().setObject(injectionStack, withKey: "InjectionStack", refenceType: .Strong)
+        if let object = self.singletons[definition] as? ObjectType {
+            return object
         }
         
-        // Проверка, нет ли уже объекта
-        let objectAfterInit:ObjectType = initBlock()
-        
-        // Проверка, не бы ло внедрения
-        return injectionBlock(objectAfterInit)
+        self.buildSingletonObject(fromDefinition: definition)
+        return self.objectWithSingletonScope(fromDefinition: definition)
     }
     
-    internal func detectViewControllersForAutoinjection() {
-        self.printMirror(self)
-    }
-    
-    internal func printMirror(object:Any, depth:Int=0) {
-        let mirror = Mirror(reflecting: object)
-        print("CHILDREN OF \(object) as \(object.dynamicType)")
+    private func objectWithWeakSingletonScope<ObjectType:AnyObject>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
         
-        for child in mirror.children {
-            print("CHILD #\(depth): \(child.label) > \(child.value)")
-            self.printMirror(child.value, depth: depth+1)
+        if let weakReferenceStorage = self.weakSingletons[definition],
+           let weakObjectLink = weakReferenceStorage.weakLink as? ObjectType {
+            return weakObjectLink
         }
+        
+        let object = definition.objectInjectBlock( object: definition.objectInitBlock() )
+        self.weakSingletons[definition] = WeakReferenceStorage(weakLink: object)
+        
+        return object
+    }
+    
+    private func buildSingletonObject<ObjectType>(fromDefinition definition:Definition<ObjectType>){
+        self.singletons[definition] = definition.objectInjectBlock( object: definition.objectInitBlock() )
+    }
+    
+    public func buildObject<ObjectType>()->ObjectType? {
+        return nil
+    }
+
+    public func definition<ObjectType>(withScope scope:Scope, objectInitBlock:()->ObjectType, objectInjectBlock:(object:ObjectType)->ObjectType)->Definition<ObjectType> {
+        
+        let definition:Definition<ObjectType> = Definition<ObjectType>(withScope: scope,
+            objectInitBlock: objectInitBlock,
+            objectInjectBlock: objectInjectBlock)
+        
+        if scope == .Singleton {
+            self.buildSingletonObject(fromDefinition: definition)
+        }
+        
+        return definition
     }
     
 }
 
-public class AssemblyPlaceholder: Assembly {
-    
+public class WeakReferenceStorage {
+    weak var weakLink:AnyObject? = nil
+    init(weakLink: AnyObject?) {
+        self.weakLink = weakLink
+    }
 }

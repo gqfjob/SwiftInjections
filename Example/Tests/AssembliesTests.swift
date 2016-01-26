@@ -22,12 +22,12 @@ class AssembliesTests: XCTestCase {
     }
     
     func testAssemblyReturnsInjectedObject() {
-         
+        
         // GIVEN
-        let assembly = AssemblyResolver<TestAssembly>()
+        let assembly = TestAssembly.instance()
         
         // WHEN
-        let objectAfterInjection = assembly.object(fromDefinition: assembly.instance().testObject())
+        let objectAfterInjection = assembly.testObject
 
         // THEN
         XCTAssertEqual(objectAfterInjection.testNumber, 20)
@@ -37,49 +37,33 @@ class AssembliesTests: XCTestCase {
 
 class TestAssembly: Assembly {
     
-    var testServiceAssembly = AssemblyResolver<TestServiceAssembly>()
-    /*
-    func testObject()->TestObject? {
-        return self.inject(intoObject: TestObject()) { (object) in
-            object.testNumberService = self.testServiceAssembly.instance().testService()
-            return object
-        }
-    }
-    */
-    func testObject()->Definition<TestObject> {
-        return Definition<TestObject>(withScope: .ObjectGraph,
-            objectInitBlock: { TestObject() },
-            objectInjectBlock: { (testObject:TestObject) in
-             
-                testObject.testNumberService = self.testServiceAssembly.object(fromDefinition: self.testServiceAssembly.instance().testService())
-                return testObject
-        })
-    }
+    lazy var testServiceAssembly = TestServiceAssembly.instance()
+    
+    lazy var testObjectDefinition:Definition<TestObject> = self.definition(withScope: .ObjectGraph,
+        objectInitBlock: { TestObject() },
+        objectInjectBlock: { (testObject:TestObject) in
+            testObject.testNumberService = self.testServiceAssembly.testService
+            return testObject
+    })
+    
+    lazy var testObject:TestObject = self.object(fromDefinition: self.testObjectDefinition)
 }
 
 class TestServiceAssembly: Assembly {
     
-    var testAssembly = AssemblyResolver<TestAssembly>()
-    
-    func testService()->Definition<TestService> {
-        return Definition<TestService>(withScope: .ObjectGraph,
-            objectInitBlock: { TestService() },
-            objectInjectBlock: { (testService:TestService) in
-            
-                testService.testObject = self.testAssembly.object(fromDefinition: self.testAssembly.instance().testObject())
-            
-            return testService
-        })
-    }
-    /*
-    func testService()->TestService? {
-        return self.instantiate(withScope:ObjectGraphScope{ TestService() }) { (object:TestService) in
-            object.testObject = self.testAssembly.instance().testObject()
-            return object
-        }
-    }*/
-}
+    lazy var testAssembly = TestAssembly.instance()
 
+    lazy var testServiceDefinition:Definition<TestService> = self.definition(withScope: .ObjectGraph,
+        objectInitBlock: { TestService() },
+        objectInjectBlock: { (testService:TestService) in
+            testService.testObject = self.testAssembly.testObject
+            return testService
+    })
+    lazy var testService:TestService = self.object(fromDefinition: self.testServiceDefinition)
+    
+    lazy var testVC:TestViewController? = nil
+}
+    
 class TestObject {
     
     var testNumberService:TestService? = nil

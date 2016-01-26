@@ -13,10 +13,24 @@ public enum Scope {
     case Prototype
     case Singleton
     case LazySingleton
-    case WealSingleton
+    case WeakSingleton
 }
 
-public class Definition<ObjectType> {
+public class AnyObjectDefinition: Hashable {
+    public var uuid:NSUUID
+    
+    public init() {
+        self.uuid = NSUUID()
+    }
+    
+    public var hashValue:Int {
+        get {
+            return self.uuid.hashValue
+        }
+    }
+}
+
+public class Definition<ObjectType>: AnyObjectDefinition {
     
     public typealias ObjectInitBlock = ()->ObjectType
     public typealias ObjectInjectBlock = (object:ObjectType)->ObjectType
@@ -29,5 +43,18 @@ public class Definition<ObjectType> {
         self.scope = scope
         self.objectInitBlock = objectInitBlock
         self.objectInjectBlock = objectInjectBlock
+        super.init()
     }
 }
+
+public func == (left:AnyObjectDefinition, right:AnyObjectDefinition) -> Bool {
+    return left.uuid == right.uuid
+}
+/*
+public func definition<ObjectType>(withScope scope:Scope, objectInitBlock: ()->ObjectType, objectInjectBlock: (object:ObjectType)->ObjectType)->Definition<ObjectType> {
+    
+    return Definition<ObjectType>(withScope: scope,
+        objectInitBlock: objectInitBlock,
+        objectInjectBlock: objectInjectBlock)
+}
+*/
