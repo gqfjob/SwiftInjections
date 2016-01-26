@@ -12,7 +12,6 @@ public enum Scope {
     case ObjectGraph
     case Prototype
     case Singleton
-    case LazySingleton
     case WeakSingleton
 }
 

@@ -54,15 +54,8 @@ public class Assembly: AssemblyProtocol {
             return self.objectWithPrototypeScope(fromDefinition: definition)
         case .Singleton:
             return self.objectWithSingletonScope(fromDefinition: definition)
-        case .LazySingleton:
-            return self.objectWithLazySingletonScope(fromDefinition: definition)
         case .WeakSingleton:
-            if let _ = ObjectType.self as? AnyObject.Type {
-                return self.objectWithLazySingletonScope(fromDefinition: definition)
-            }
-            else {
-                return self.objectWithPrototypeScope(fromDefinition: definition)
-            }
+            return self.objectWithWeakSingletonScope(fromDefinition: definition) as ObjectType
         }
     }
     
@@ -100,25 +93,17 @@ public class Assembly: AssemblyProtocol {
         return self.singletons[definition] as! ObjectType
     }
     
-    private func objectWithLazySingletonScope<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
-        
-        if let object = self.singletons[definition] as? ObjectType {
-            return object
-        }
-        
-        self.buildSingletonObject(fromDefinition: definition)
-        return self.objectWithSingletonScope(fromDefinition: definition)
-    }
-    
-    private func objectWithWeakSingletonScope<ObjectType:AnyObject>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
+    private func objectWithWeakSingletonScope<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
         
         if let weakReferenceStorage = self.weakSingletons[definition],
            let weakObjectLink = weakReferenceStorage.weakLink as? ObjectType {
             return weakObjectLink
         }
         
-        let object = definition.objectInjectBlock( object: definition.objectInitBlock() )
-        self.weakSingletons[definition] = WeakReferenceStorage(weakLink: object)
+        var object = definition.objectInjectBlock( object: definition.objectInitBlock() )
+        if let objectAsAnyObject = object as? AnyObject {
+            self.weakSingletons[definition] = WeakReferenceStorage(weakLink: objectAsAnyObject)
+        }
         
         return object
     }
@@ -128,12 +113,18 @@ public class Assembly: AssemblyProtocol {
     }
 
     public func bluePrint<ObjectType>(withScope scope:Scope, objectInitBlock:()->ObjectType, objectInjectBlock:(object:ObjectType)->ObjectType)->ObjectBlueprint<ObjectType> {
-        return ObjectBlueprint<ObjectType>(withBuildBlock: { (definition) in
-            return self.instantiateObject(fromDefinition: definition)
-        }, definition: Definition<ObjectType>(withScope: scope,
+        
+        let definition = Definition<ObjectType>(withScope: scope,
             objectInitBlock: objectInitBlock,
             objectInjectBlock: objectInjectBlock)
-            )
+        
+        if scope == .Singleton {
+            self.buildSingletonObject(fromDefinition: definition)
+        }
+        
+        return ObjectBlueprint<ObjectType>(withBuildBlock: { (definition) in
+            return self.instantiateObject(fromDefinition: definition)
+        }, definition: definition)
     }
 }
 

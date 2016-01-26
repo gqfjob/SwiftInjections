@@ -48,9 +48,24 @@ class AssembliesTests: XCTestCase {
         XCTAssertEqual(objectAfterInjection.testNumber, 20)
         XCTAssertEqual(objectAfterInjection2.testNumber, 20)
         XCTAssertNotEqual(unsafeAddressOf(objectAfterInjection), unsafeAddressOf(objectAfterInjection2))
-        
     }
-
+    
+    func testSingleton() {
+        
+        // GIVEN
+        let assembly = TestAssembly.instance()
+        
+        // WHEN
+        let singleton = assembly.testSingletonBlueprint.instance
+        TestSingleton.staticTestValue = 10
+        let singleton2 = assembly.testSingletonBlueprint.instance
+        
+        // THEN
+        XCTAssertEqual(unsafeAddressOf(singleton), unsafeAddressOf(singleton2))
+        XCTAssertEqual(singleton.testValue, 0)
+        XCTAssertEqual(singleton.testValue, 0)
+    }
+    
 }
 
 class TestAssembly: Assembly {
@@ -66,6 +81,18 @@ class TestAssembly: Assembly {
     var testObject:TestObject {
         return self.testObjectBlueprint.instance
     }
+    
+    lazy var testSingletonBlueprint:ObjectBlueprint<TestSingleton> = self.bluePrint(withScope: .Singleton,
+        objectInitBlock:   { TestSingleton() },
+        objectInjectBlock: { (testSingleton:TestSingleton) in
+            return testSingleton
+    })
+    
+    lazy var testWeakSingletonBlueprint:ObjectBlueprint<TestSingleton> = self.bluePrint(withScope: .WeakSingleton,
+        objectInitBlock:   { TestSingleton() },
+        objectInjectBlock: { (testSingleton:TestSingleton) in
+            return testSingleton
+    })
 }
 
 class TestServiceAssembly: Assembly {
@@ -102,6 +129,14 @@ class TestService {
     
     func getResult() -> Int {
         return self.testObject?.numberForService ?? 10
+    }
+}
+
+class TestSingleton {
+    static var staticTestValue:Int = 0
+    var testValue:Int
+    init() {
+        self.testValue = TestSingleton.staticTestValue
     }
 }
 
