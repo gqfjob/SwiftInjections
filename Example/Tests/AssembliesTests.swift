@@ -31,6 +31,8 @@ class AssembliesTests: XCTestCase {
 
         // THEN
         XCTAssertEqual(objectAfterInjection.testNumber, 20)
+        let testObjectCycle = objectAfterInjection.testNumberService?.testObject
+        print("\(testObjectCycle) / \(objectAfterInjection)")
     }
 
 }
@@ -53,6 +55,7 @@ class TestServiceAssembly: Assembly {
     
     lazy var testAssembly = TestAssembly.instance()
 
+    
     lazy var testServiceDefinition:Definition<TestService> = self.definition(withScope: .ObjectGraph,
         objectInitBlock: { TestService() },
         objectInjectBlock: { (testService:TestService) in

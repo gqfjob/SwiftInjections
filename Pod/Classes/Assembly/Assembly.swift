@@ -45,6 +45,13 @@ public class Assembly: AssemblyProtocol {
     
     public func object<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
         
+        return self.defineObject({
+            return self.defineObjectBuildBlock(fromDefinition: definition)
+        })
+    }
+    
+    public func instantiateObject<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
+        
         switch definition.scope {
         case .ObjectGraph:
             return self.objectWithObjectGraphScope(fromDefinition: definition)
@@ -135,6 +142,16 @@ public class Assembly: AssemblyProtocol {
         return definition
     }
     
+    
+    public func defineObject<ObjType>(block:()->(()->ObjType))->ObjType {
+        return block()()
+    }
+    
+    public func defineObjectBuildBlock<ObjType>(fromDefinition definition:Definition<ObjType>)->(()->ObjType) {
+        return { ()->ObjType in
+            return self.instantiateObject(fromDefinition: definition)
+        }
+    }
 }
 
 public class WeakReferenceStorage {
