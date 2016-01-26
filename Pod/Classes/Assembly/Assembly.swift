@@ -43,14 +43,7 @@ public class Assembly: AssemblyProtocol {
         }
     }
     
-    public func object<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
-        
-        return self.defineObject({
-            return self.defineObjectBuildBlock(fromDefinition: definition)
-        })
-    }
-    
-    public func instantiateObject<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
+    private func instantiateObject<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
         
         print("Using definition: \(unsafeAddressOf(definition)) for Object: \(ObjectType.self)")
         
@@ -75,9 +68,11 @@ public class Assembly: AssemblyProtocol {
     
     private func objectWithObjectGraphScope<ObjectType>(fromDefinition definition:Definition<ObjectType>) -> ObjectType {
         
+        var shouldClearInjectionStack:Bool = false
         var injectionStack:InjectionStack! = NSThread.currentThread().getObject(forKey: "InjectionStack")
         if injectionStack == nil {
             injectionStack = InjectionStack()
+            shouldClearInjectionStack = true
             NSThread.currentThread().setObject(injectionStack, withKey: "InjectionStack", refenceType: .Strong)
         }
         
@@ -86,6 +81,11 @@ public class Assembly: AssemblyProtocol {
             object = definition.objectInitBlock()
             injectionStack.objectGraphScopeDefinitions[definition] = object
             object = definition.objectInjectBlock(object: object)
+        }
+        
+        if shouldClearInjectionStack {
+            injectionStack = nil
+            NSThread.currentThread().setObject(injectionStack, withKey: "InjectionStack", refenceType: .Strong)
         }
         
         return object
@@ -126,33 +126,14 @@ public class Assembly: AssemblyProtocol {
     private func buildSingletonObject<ObjectType>(fromDefinition definition:Definition<ObjectType>){
         self.singletons[definition] = definition.objectInjectBlock( object: definition.objectInitBlock() )
     }
-    
-    public func buildObject<ObjectType>()->ObjectType? {
-        return nil
-    }
 
-    public func definition<ObjectType>(withScope scope:Scope, objectInitBlock:()->ObjectType, objectInjectBlock:(object:ObjectType)->ObjectType)->Definition<ObjectType> {
-        
-        let definition:Definition<ObjectType> = Definition<ObjectType>(withScope: scope,
+    public func bluePrint<ObjectType>(withScope scope:Scope, objectInitBlock:()->ObjectType, objectInjectBlock:(object:ObjectType)->ObjectType)->ObjectBlueprint<ObjectType> {
+        return ObjectBlueprint<ObjectType>(withBuildBlock: { (definition) in
+            return self.instantiateObject(fromDefinition: definition)
+        }, definition: Definition<ObjectType>(withScope: scope,
             objectInitBlock: objectInitBlock,
             objectInjectBlock: objectInjectBlock)
-        
-        if scope == .Singleton {
-            self.buildSingletonObject(fromDefinition: definition)
-        }
-        
-        return definition
-    }
-    
-    
-    public func defineObject<ObjType>(block:()->(()->ObjType))->ObjType {
-        return block()()
-    }
-    
-    public func defineObjectBuildBlock<ObjType>(fromDefinition definition:Definition<ObjType>)->(()->ObjType) {
-        return { ()->ObjType in
-            return self.instantiateObject(fromDefinition: definition)
-        }
+            )
     }
 }
 
