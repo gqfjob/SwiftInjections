@@ -138,7 +138,7 @@ public class Assembly {
     
     static var objectsTypesStack:[String] = [String]()
     
-    func instantiateObject<ObjectType:AnyObject>(@noescape initBlock:()->ObjectType)->ObjectType {
+    public func instantiateObject<ObjectType:AnyObject>(@autoclosure initBlock:()->ObjectType)->ObjectType {
         
         let objectKey = String(ObjectType)
         if let object = Assembly.objectStack[objectKey] as? ObjectType {
@@ -152,13 +152,9 @@ public class Assembly {
     }
 }
 
-infix operator ~> { precedence 90 }
-func ~><ObjectType:AnyObject>(assembly:Assembly, @autoclosure objectInitClosure:()->ObjectType)->ObjectType {
+infix operator *~> { precedence 90 }
+public func *~><ObjectType:AnyObject>(assembly:Assembly, @autoclosure objectInitClosure:()->ObjectType)->ObjectType {
     return assembly.instantiateObject(objectInitClosure)
-}
-
-func ~><ObjectType:AnyObject>(assembly:Assembly, initData:(key:String,objectInitClosure:()->ObjectType))->ObjectType {
-    return assembly.instantiateObject(initData.objectInitClosure)
 }
 
 /// Специальная функция-костыль для преобразования типов с учетом наследования

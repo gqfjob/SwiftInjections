@@ -20,11 +20,9 @@ Pod::Spec.new do |s|
                        DESC
 
   s.homepage         = "https://gitlab.rambler.ru/cocoapods/SwiftInjections"
-  # s.screenshots     = "www.example.com/screenshots_1", "www.example.com/screenshots_2"
   s.license          = 'MIT'
   s.author           = { "Andrey Zarembo" => "a.zarembo-godzyatsky@rambler-co.ru" }
   s.source           = { :git => "https://gitlab.rambler.ru/cocoapods/SwiftInjections.git", :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
 
   s.platform     = :ios, '8.0'
   s.requires_arc = true
