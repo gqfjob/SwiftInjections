@@ -14,7 +14,8 @@
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
-		9B6EA7011C525EA100B047CF /* AssembliesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B6EA7001C525EA100B047CF /* AssembliesTests.swift */; };
+		9B5AD3651C91AA9C00C2010B /* ObjectAssemblies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5AD3631C91AA9C00C2010B /* ObjectAssemblies.swift */; };
+		9B5AD3661C91AA9C00C2010B /* Objects.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5AD3641C91AA9C00C2010B /* Objects.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,7 +45,8 @@
 		6E458D7BA9D1941202D3C1B9 /* Pods_SwiftInjections_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftInjections_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		7410A9F67026C58E3AD50116 /* SwiftInjections.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = SwiftInjections.podspec; path = ../SwiftInjections.podspec; sourceTree = "<group>"; };
 		8AE825AC5A1079B69F67E88D /* Pods_SwiftInjections_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SwiftInjections_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		9B6EA7001C525EA100B047CF /* AssembliesTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssembliesTests.swift; sourceTree = "<group>"; };
+		9B5AD3631C91AA9C00C2010B /* ObjectAssemblies.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObjectAssemblies.swift; sourceTree = "<group>"; };
+		9B5AD3641C91AA9C00C2010B /* Objects.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Objects.swift; sourceTree = "<group>"; };
 		9C0F4B0C5FA9A6C5CBC8D662 /* Pods-SwiftInjections_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SwiftInjections_Example.release.xcconfig"; path = "Pods/Target Support Files/Pods-SwiftInjections_Example/Pods-SwiftInjections_Example.release.xcconfig"; sourceTree = "<group>"; };
 		A202AC94A5E2B45267AF407F /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -124,8 +126,9 @@
 		607FACE81AFB9204008FA782 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				9B5AD3631C91AA9C00C2010B /* ObjectAssemblies.swift */,
+				9B5AD3641C91AA9C00C2010B /* Objects.swift */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
-				9B6EA7001C525EA100B047CF /* AssembliesTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -360,6 +363,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				607FACD81AFB9204008FA782 /* ViewController.swift in Sources */,
+				9B5AD3651C91AA9C00C2010B /* ObjectAssemblies.swift in Sources */,
+				9B5AD3661C91AA9C00C2010B /* Objects.swift in Sources */,
 				607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -368,7 +373,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9B6EA7011C525EA100B047CF /* AssembliesTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "SwiftInjections"
-  s.version          = "1.0.0"
+  s.version          = "2.0.0"
   s.summary          = "Легкий аналог Typhoon для Swift, чтобы не сильно переучиваться."
 
 # This description is used to generate tags and improve search results.
@@ -34,5 +34,5 @@ Pod::Spec.new do |s|
     'SwiftInjections' => ['Pod/Assets/*.png']
   }
 
-  s.dependency 'SwiftRuntime', '~> 1.0'
+  s.dependency 'SwiftDispatch', '~> 1.0'
 end
