@@ -167,5 +167,4 @@ class SwiftInjectionsTests: XCTestCase {
         }
     }
     
-    
 }

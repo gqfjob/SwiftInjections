@@ -4,16 +4,6 @@ import SwiftDispatch
 /// Базовый класс Assembly
 public class Assembly {
     
-    /// Области создания объектов
-    public enum Scope {
-        /// Прототип
-        case Prototype
-        /// Граф объектов
-        case ObjectGraph
-        /// Синглетон
-        case Singleton
-    }
-    
     /// Метод создания синглетоном для Assemblies. Такой сложный, чтобы можно было наследоваться от класса и получать синглетоны
     public static func instance()->Self {
         /// Статическое хранилище токенов и инстансов
@@ -50,6 +40,86 @@ public class Assembly {
     /// Объекты-синглетоны
     var singletons:[String:AnyObject] = [String:AnyObject]()
 
+    public func define<ObjectType:AnyObject>(injectBlock:(definition:Definition)->ObjectType)->ObjectType! {
+        return self.define(withKey: String(ObjectType), scope: Scope.ObjectGraph, injectBlock: injectBlock)
+    }
+
+    public func define<ObjectType:AnyObject>(injectBlock:(definition:Definition)->ObjectType)->ObjectType {
+        return self.define(withKey: String(ObjectType), scope: Scope.ObjectGraph, injectBlock: injectBlock)
+    }
+    
+    public func define<ObjectType:AnyObject>(withKey key:String,injectBlock:(definition:Definition)->ObjectType)->ObjectType! {
+        
+        return self.define(withKey: key, scope: Scope.ObjectGraph, injectBlock: injectBlock)
+    }
+
+    public func define<ObjectType:AnyObject>(withKey key:String,injectBlock:(definition:Definition)->ObjectType)->ObjectType {
+        
+        return self.define(withKey: key, scope: Scope.ObjectGraph, injectBlock: injectBlock)
+    }
+
+    public func define<ObjectType:AnyObject>(withScope scope:Scope,injectBlock:(definition:Definition)->ObjectType)->ObjectType! {
+        
+        return self.define(withKey: String(ObjectType), scope: scope, injectBlock: injectBlock)
+    }
+
+    public func define<ObjectType:AnyObject>(withScope scope:Scope,injectBlock:(definition:Definition)->ObjectType)->ObjectType {
+        
+        return self.define(withKey: String(ObjectType), scope: scope, injectBlock: injectBlock)
+    }
+    
+    public func define<ObjectType:AnyObject>(withKey key:String,scope:Scope,injectBlock:(definition:Definition)->ObjectType)->ObjectType! {
+        
+        let object:ObjectType = self.define(withKey: key, scope: scope, injectBlock: injectBlock)
+        return object
+    }
+    
+    public func define<ObjectType:AnyObject>(withKey key:String,scope:Scope,injectBlock:(definition:Definition)->ObjectType)->ObjectType {
+        
+        let definition:Definition = Definition(assembly: self, key: key, scope: scope)
+        
+        var object:ObjectType
+        
+        /// Прототип создается всегда через вызовы блока
+        switch scope {
+
+        case .Prototype:
+
+            object = injectBlock(definition: definition)
+            
+        case .ObjectGraph:
+            
+            /// Если объект есть, возвращается он
+            if let objectFromStack = Assembly.objectStack[key] as? ObjectType {
+                object = objectFromStack
+            }
+            else {
+                /// Если объекта нет, погружаемся в стек на 1 уровень, создаем объект,
+                /// сохраняем его в связке с ключем и вызываем лок внедрения. После чего выходим из стека на 1 уровень.
+                /// Если есть циклическая связь, то вернется инициализированный объект без циклического вызова injectionBlock
+                Assembly.objectStackDepth += 1
+                object = injectBlock(definition: definition)
+                Assembly.objectStackDepth -= 1
+            }
+            if Assembly.objectStackDepth == 0 {
+                Assembly.objectStack.removeAll()
+            }
+            
+        case .Singleton:
+            
+            /// Если объект есть, возвращается он
+            if let objectFromStack = singletons[key] as? ObjectType {
+                object = objectFromStack
+            }
+            else {
+                object = self.define(withKey: key, scope: Scope.ObjectGraph, injectBlock: injectBlock)
+                singletons[key] = object
+            }
+        }
+        
+        return object
+    }
+    
     /// Инициализирует объект в зависимости от областей создания объектов
     /// @autoclosure автоматически оборачивает код в closure, чтобы можно было явно вызывать инициализатор, когда это требуется
     /// Отделение инициализатора нужно, чтобы разорвать цепной вызов injectionBlock и вернуть объект, если он уже был инициализирован для objectGraph
@@ -150,11 +220,29 @@ public class Assembly {
             return object
         }
     }
+    
+    internal func instantiateObject<ObjectType:AnyObject>(withDefinition definition:Definition, @noescape objectInitblock:()->ObjectType)->ObjectType {
+        
+        if definition.scope == .Prototype {
+            return objectInitblock()
+        }
+        else {
+            let objectKey = definition.key
+            if let object = Assembly.objectStack[objectKey] as? ObjectType {
+                return object
+            }
+            else {
+                let object = objectInitblock()
+                Assembly.objectStack[objectKey] = object
+                return object
+            }
+        }
+    }
 }
 
 infix operator *~> { precedence 90 }
-public func *~><ObjectType:AnyObject>(assembly:Assembly, @autoclosure objectInitClosure:()->ObjectType)->ObjectType {
-    return assembly.instantiateObject(objectInitClosure)
+public func *~><ObjectType:AnyObject>(definition:Definition, @autoclosure objectInitClosure:()->ObjectType)->ObjectType {
+    return definition.assembly.instantiateObject(withDefinition: definition, objectInitblock: objectInitClosure)
 }
 
 /// Специальная функция-костыль для преобразования типов с учетом наследования
