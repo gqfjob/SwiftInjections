@@ -25,13 +25,48 @@ Object initialization scope can be defined as `Singleton`, `ObjectGraph` or `Pro
 
 * **Prototype** - this scope creates one copy of object at every property request. Circular dependecies of prototypes leads to infinite cycle.
 
+Definition of objects with scopes:
+
+```
+return self.define(withScope: .Singleton) { (definition) in
+
+
+return self.define(withKey: "TheObject", scope: .Singleton) { (definition) in
+
+```
+
 ## Keys
 
-Due to lack of runtime features, object instances are stored inside assemblies object stack by `keys`. If key is not set it will use object type name as a key. It works until there's two or more objects with same type 
+Due to lack of runtime features, object instances are stored inside assemblies object stack by `keys`. If key is not set it will use object type name as a key. It works until there's two or more objects with same type in one object graph
 
 ## How it works
 
-Object is returned as result of `define` method of Assembly. This method checks order of object ca
+Object is returned as result of `define` method of Assembly. This method checks scope. For `.Prototype` it calls injection block. For `.Singleton` and `.ObjectGraph` it checks current object graph stack if object instance exists using `key`. Existing instance returned as is. If object is not found in stack it calls injection block.
+
+Injection block is called with `definition` object which holds object `key`, `scope` and `assembly` and redirects object init block into assembly's object instantiation method.
+
+At the object instantiation method Assembly checks `scope` and `key` from definition. For `.Prototype` it just calls initBlock. For `.ObjectGraph` it checks current object graph stack if object instance exists using `key`. Existing instance returned as is. If object is not found in stack it calls injection block. For `.Singleton` it checks assembly singletons list if object instance exists using `key`. Existing instance returned as is. If object is not found in singletons list it calls injection block.
+
+Circular dependencies resolved using objects stack and depth. Each call of `define` increments stack depth before call of injection block and decrements after it. If stack depth is zero after injection block call objects stack will be destroyed.
+
+Definition of objects with keys:
+
+```
+return self.define(withKey: "TheObject") { (definition) in
+
+
+return self.define(withKey: "TheObject", scope: .Singleton) { (definition) in
+
+```
+
+## Limitations
+
+- needs key for creation of same type objects in single ObjectGraph
+- assemblies are singletons with shared object graph and stack depth
+- ugly syntax
+- single-line object initialization blocks
+- lazy singletons
+- non-optional objects properties
 
 ## Usage
 

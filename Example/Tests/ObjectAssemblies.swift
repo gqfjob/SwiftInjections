@@ -10,11 +10,12 @@ public class Assembly1: Assembly {
             
             let object1 = definition *~> Object1()
             object1.object2 = self.assembly2.object2
+            object1.enumValue = self.testEnum
             return object1
         }
     }
     
-    public var object3:Object3! {
+    public var object3:Object3 {
         return self.define() { (definition) in
             
             let object3 = definition *~> Object3()
@@ -26,7 +27,7 @@ public class Assembly1: Assembly {
         }
     }
     
-    public var object4:Object4! {
+    public var object4:Object4 {
         return self.define(withKey: "Object4",scope: .Prototype) { (definition) in
             
             let object4 = definition *~> Object4()
@@ -35,7 +36,7 @@ public class Assembly1: Assembly {
         }
     }
     
-    public var object5:Object5! {
+    public var object5:Object5 {
         return self.define(withScope: .Singleton) { (definition) in
             
             let object5 = definition *~> Object5()
@@ -44,7 +45,7 @@ public class Assembly1: Assembly {
         }
     }
     
-    public var object6:Object6! {
+    public var object6:Object6 {
         return self.define(withScope: .Prototype) { (definition) in
             
             let object6 = definition *~> Object6.buildObject()
@@ -53,11 +54,18 @@ public class Assembly1: Assembly {
         }
     }
     
-    public var object7:TestObjectProtocol! {
+    public var object7:TestObjectProtocol {
         return self.define() { (definition) in
             let object7 = definition *~> Object7()
             return object7
-        } as Object7
+        }
+    }
+    
+    public var testEnum:TestEnum {
+        return self.define() { (definition) in
+            let testEnum = definition *~> TestEnum.TestValue2
+            return testEnum
+        }
     }
 }
 

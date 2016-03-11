@@ -204,4 +204,17 @@ class SwiftInjectionsTests: XCTestCase {
         // THEN
         XCTAssertNotNil(object7)
     }
+    
+    func testEnumInjection() {
+        
+        // GIVEN
+        let assembly = Assembly1.instance()
+        
+        // WHEN
+        let object1 = assembly.object1
+        
+        // THEN
+        XCTAssertEqual(object1.enumValue, TestEnum.TestValue2)
+    }
+
 }

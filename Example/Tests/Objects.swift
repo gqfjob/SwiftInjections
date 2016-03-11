@@ -11,6 +11,9 @@ public class Object1:BaseObject {
     
     /// В него внедряется "Object2"
     public var object2:Object2!
+    
+    /// Внедрение enum
+    public var enumValue:TestEnum!
 }
 
 /// Второй объект для тестирования внедрения зависимостей
@@ -64,6 +67,11 @@ public class Object7:BaseObject, TestObjectProtocol {
     public var object1:Object1!
 }
 
+/// Тестовый Enum для внедрения
+public enum TestEnum {
+    case TestValue1
+    case TestValue2
+}
 
 public func ==(left:BaseObject?, right:BaseObject?)->Bool {
     guard let leftObject = left, let rightObject = right else {
