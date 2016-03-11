@@ -88,6 +88,8 @@ public class Assembly {
             object = injectBlock(definition: definition)
             
         case .ObjectGraph:
+            fallthrough
+        case .Singleton:
             
             /// Если объект есть, возвращается он
             if let objectFromStack = Assembly.objectStack[key] as? ObjectType {
@@ -103,17 +105,6 @@ public class Assembly {
             }
             if Assembly.objectStackDepth == 0 {
                 Assembly.objectStack.removeAll()
-            }
-            
-        case .Singleton:
-            
-            /// Если объект есть, возвращается он
-            if let objectFromStack = singletons[key] as? ObjectType {
-                object = objectFromStack
-            }
-            else {
-                object = self.define(withKey: key, scope: Scope.ObjectGraph, injectBlock: injectBlock)
-                singletons[key] = object
             }
         }
         
@@ -132,7 +123,7 @@ public class Assembly {
             return injectBlock()
         }
         /// Для графа объектов проверяется, есть ли в стеке объект для этого ключа
-        else if scope == Scope.ObjectGraph {
+        else {
             
             var object:ObjectType
             
@@ -153,24 +144,6 @@ public class Assembly {
             }
             return object
         }
-        /// Для синглетона
-        else if scope == Scope.Singleton {
-            
-            var object:ObjectType
-            
-            /// Если объект есть, возвращается он
-            if let objectFromStack = singletons[objectKey] as? ObjectType {
-                object = objectFromStack
-            }
-            else {
-                object = self.instantiateObject(scope: Scope.ObjectGraph, key: key, injectBlock: injectBlock)
-                singletons[objectKey] = object
-            }
-            
-            return object
-            
-        }
-        return nil
     }
     
     /// Создает объект в ObjectGraph
@@ -223,16 +196,33 @@ public class Assembly {
     
     internal func instantiateObject<ObjectType:AnyObject>(withDefinition definition:Definition, @noescape objectInitblock:()->ObjectType)->ObjectType {
         
-        if definition.scope == .Prototype {
+        let objectKey = definition.key
+        
+        switch definition.scope {
+        case .Prototype:
+            
             return objectInitblock()
-        }
-        else {
-            let objectKey = definition.key
+            
+        case .ObjectGraph:
+            
             if let object = Assembly.objectStack[objectKey] as? ObjectType {
                 return object
             }
             else {
                 let object = objectInitblock()
+                Assembly.objectStack[objectKey] = object
+                return object
+            }
+            
+        case .Singleton:
+        
+            if let object = self.singletons[objectKey] as? ObjectType {
+                Assembly.objectStack[objectKey] = object
+                return object
+            }
+            else {
+                let object = objectInitblock()
+                self.singletons[objectKey] = object
                 Assembly.objectStack[objectKey] = object
                 return object
             }
