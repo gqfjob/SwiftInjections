@@ -167,4 +167,30 @@ class SwiftInjectionsTests: XCTestCase {
         }
     }
     
+    func testInjectsDataIntoSingleton() {
+        
+        // GIVEN
+        let assembly = Assembly1.instance()
+        
+        // WHEN
+        let object5 = assembly.object5
+        
+        // THEN
+        XCTAssertNotNil(object5.object6)
+    }
+
+    func testReInjectsDataIntoSingleton() {
+        
+        // GIVEN
+        let assembly = Assembly1.instance()
+        var object5 = assembly.object5
+        let firstObject6 = object5.object6
+        
+        // WHEN
+        object5 = assembly.object5
+        
+        // THEN
+        XCTAssertNotEqual(firstObject6, object5.object6)
+    }
+    
 }

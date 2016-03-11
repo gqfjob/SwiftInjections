@@ -27,7 +27,7 @@ public class Assembly1: Assembly {
     }
     
     public var object4:Object4! {
-        return self.define(withScope: .Prototype) { (definition) in
+        return self.define(withKey: "Object4",scope: .Prototype) { (definition) in
             
             let object4 = definition *~> Object4()
             object4.object3 = self.object3
@@ -52,7 +52,6 @@ public class Assembly1: Assembly {
             return object6
         }
     }
-    
 }
 
 public class Assembly2: Assembly {
