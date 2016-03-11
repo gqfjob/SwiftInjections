@@ -67,6 +67,22 @@ public class Assembly1: Assembly {
             return testEnum
         }
     }
+    
+    public func injectIntoObject8( inputObject8:Object8 )->Object8 {
+        return self.define() { (definition) in
+            let object8 = definition *~> inputObject8
+            object8.object9 = self.object9
+            return object8
+        }
+    }
+    
+    public var object9:Object9 {
+        return self.define() { (definition) in
+            let object9 = definition *~> Object9()
+            object9.object8 = self.existingObjectByMatchingType()
+            return object9
+        }
+    }
 }
 
 public class Assembly2: Assembly {

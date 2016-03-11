@@ -217,4 +217,29 @@ class SwiftInjectionsTests: XCTestCase {
         XCTAssertEqual(object1.enumValue, TestEnum.TestValue2)
     }
 
+    func testInjectIntoExistingObjects() {
+        // GIVEN
+        let assembly = Assembly1.instance()
+        let object8 = Object8()
+        
+        // WHEN
+        let object8AfterInjection = assembly.injectIntoObject8(object8)
+        
+        // THEN
+        XCTAssertNotNil(object8AfterInjection)
+        XCTAssertEqual(object8AfterInjection, object8)
+        XCTAssertNotNil(object8AfterInjection.object9)
+    }
+    
+    func testInjectIntoExistingObjectsWithCircularDependencies() {
+        // GIVEN
+        let assembly = Assembly1.instance()
+        let object8 = Object8()
+        
+        // WHEN
+        let object8AfterInjection = assembly.injectIntoObject8(object8)
+        
+        // THEN
+        XCTAssertEqual(object8AfterInjection.object9.object8,object8)
+    }
 }
