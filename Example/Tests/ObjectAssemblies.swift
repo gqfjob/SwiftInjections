@@ -52,6 +52,13 @@ public class Assembly1: Assembly {
             return object6
         }
     }
+    
+    public var object7:TestObjectProtocol! {
+        return self.define() { (definition) in
+            let object7 = definition *~> Object7()
+            return object7
+        } as Object7
+    }
 }
 
 public class Assembly2: Assembly {

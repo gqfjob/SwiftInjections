@@ -53,6 +53,18 @@ public class Object6:BaseObject {
     }
 }
 
+/// Тестовый протокол для объекта
+public protocol TestObjectProtocol: AnyObject {
+    
+    var object1:Object1! { get set }
+}
+/// Тестовый объект с доступом по протоколу
+public class Object7:BaseObject, TestObjectProtocol {
+    
+    public var object1:Object1!
+}
+
+
 public func ==(left:BaseObject?, right:BaseObject?)->Bool {
     guard let leftObject = left, let rightObject = right else {
         return false
@@ -63,3 +75,4 @@ public func ==(left:BaseObject?, right:BaseObject?)->Bool {
 public func ==(left:BaseObject, right:BaseObject)->Bool {
     return ObjectIdentifier(left).uintValue == ObjectIdentifier(right).uintValue
 }
+

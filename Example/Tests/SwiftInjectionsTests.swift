@@ -193,4 +193,15 @@ class SwiftInjectionsTests: XCTestCase {
         XCTAssertNotEqual(firstObject6, object5.object6)
     }
     
+    func testCreatesObjectByProtocol() {
+        
+        // GIVEN
+        let assembly = Assembly1.instance()
+        
+        // WHEN
+        let object7:TestObjectProtocol? = assembly.object7
+        
+        // THEN
+        XCTAssertNotNil(object7)
+    }
 }

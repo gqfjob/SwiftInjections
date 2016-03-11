@@ -21,7 +21,17 @@ Object initialization scope can be defined as `Singleton`, `ObjectGraph` or `Pro
 
 * **Singleton** - this is Lazy singleton. It's created at first property access. For such object definition closure is called only once.
 
-* **ObjectGraph** - 
+* **ObjectGraph** - this scope creates one object copy per object graph. Resolves circular dependencies, but can create retain cycles.
+
+* **Prototype** - this scope creates one copy of object at every property request. Circular dependecies of prototypes leads to infinite cycle.
+
+## Keys
+
+Due to lack of runtime features, object instances are stored inside assemblies object stack by `keys`. If key is not set it will use object type name as a key. It works until there's two or more objects with same type 
+
+## How it works
+
+Object is returned as result of `define` method of Assembly. This method checks order of object ca
 
 ## Usage
 
