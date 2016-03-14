@@ -59,6 +59,31 @@ return self.define(withKey: "TheObject", scope: .Singleton) { (definition) in
 
 ```
 
+## Injections into existing objects
+
+SwiftInjections can be used to inject data into existing objects. Also existing objects can be used to create circular dependencies. Injection into existing object should be a function with object as parameter. This object should be used inside init block instead of constructor.
+
+Here's example:
+```
+public func injectIntoObject( inputObject:Object )->Object {
+    return self.define() { (definition) in
+        let object = definition *~> inputObject
+        object.anotherObject = self.anotherObject
+        return object
+    }
+}
+
+public var anotherObject:AnotherObject {
+    return self.define() { (definition) in
+        let anotherObject = definition *~> AnotherObject()
+        anotherObject.object = self.existingObjectByMatchingType()
+        return anotherObject
+    }
+}
+```
+Method `existingObjectByMatchingType` returns object by Object Type as a Key for current Object Graph.
+Also key can be set explicitly by means of `existingObject(withKey:)` method.
+
 ## Limitations
 
 - needs key for creation of same type objects in single ObjectGraph
