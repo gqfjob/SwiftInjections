@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "SwiftInjections"
-  s.version          = "2.1.1   "
+  s.version          = "2.1.2"
   s.summary          = "Simple dependency injection framework for Swift inspired by Typhoon."
 
 # This description is used to generate tags and improve search results.
@@ -43,6 +43,4 @@ Each injectable object is defined as computed property of Assembly. Object itsel
   s.resource_bundles = {
     'SwiftInjections' => ['Pod/Assets/*.png']
   }
-
-  s.dependency 'SwiftDispatch', '~> 1.0'
 end
