@@ -8,7 +8,7 @@
 
 Pod::Spec.new do |s|
   s.name             = "SwiftInjections"
-  s.version          = "2.1.0"
+  s.version          = "2.1.1   "
   s.summary          = "Simple dependency injection framework for Swift inspired by Typhoon."
 
 # This description is used to generate tags and improve search results.
@@ -31,10 +31,10 @@ return object1
 Each injectable object is defined as computed property of Assembly. Object itself is created by call of assemblies method `define`, with object injection definition closure. Definition object should be used to initialize object with method `initObject` or by means of `*~>` operator to correctly resolve circular dependencies.
                        DESC
 
-  s.homepage         = "https://gitlab.rambler.ru/cocoapods/SwiftInjections"
+  s.homepage         = "https://github.com/rambler-ios/SwiftInjections"
   s.license          = 'MIT'
   s.author           = { "Andrey Zarembo" => "a.zarembo-godzyatsky@rambler-co.ru" }
-  s.source           = { :git => "https://gitlab.rambler.ru/cocoapods/SwiftInjections.git", :tag => s.version.to_s }
+  s.source           = { :git => "https://github.com/rambler-ios/SwiftInjections.git", :tag => s.version.to_s }
 
   s.platform     = :ios, '8.0'
   s.requires_arc = true
