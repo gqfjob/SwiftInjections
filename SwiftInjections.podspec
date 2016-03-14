@@ -43,6 +43,4 @@ Each injectable object is defined as computed property of Assembly. Object itsel
   s.resource_bundles = {
     'SwiftInjections' => ['Pod/Assets/*.png']
   }
-
-  s.dependency 'SwiftDispatch', '~> 1.0'
 end

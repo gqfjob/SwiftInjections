@@ -1,5 +1,4 @@
 import Foundation
-import SwiftDispatch
 
 /// Базовый класс Assembly
 public class Assembly {
