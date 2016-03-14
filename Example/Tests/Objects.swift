@@ -67,6 +67,17 @@ public class Object7:BaseObject, TestObjectProtocol {
     public var object1:Object1!
 }
 
+/// Тестовый объект для внедрения в существующий объект
+public class Object8:BaseObject {
+    
+    public var object9:Object9!
+}
+
+public class Object9:BaseObject {
+    
+    public var object8:Object8!
+}
+
 /// Тестовый Enum для внедрения
 public enum TestEnum {
     case TestValue1

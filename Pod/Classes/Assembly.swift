@@ -128,6 +128,14 @@ public class Assembly {
             }
         }
     }
+    
+    public func existingObjectByMatchingType<ObjectType>()->ObjectType? {
+        let key = String(ObjectType)
+        return self.existingObject(withKey: key)
+    }
+    public func existingObject<ObjectType>(withKey key:String)->ObjectType? {
+        return Assembly.objectStack[key] as? ObjectType
+    }
 }
 
 infix operator *~> { precedence 90 }
